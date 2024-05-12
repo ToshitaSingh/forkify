@@ -607,7 +607,8 @@ const controlRecipes = async function() {
         // const { recipe } = model.state; //markup using this now shifted to views
         // 2) Rendering the recipe
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
-    // const recipeView = new recipeView(model.state.recipe);
+        // const recipeView = new recipeView(model.state.recipe);
+        controlServings();
     } catch (err) {
         (0, _recipeViewJsDefault.default).renderError();
     }
@@ -636,6 +637,12 @@ const controlPagination = function(goToPage) {
     (0, _resultsViewJsDefault.default).render(_modelJs.getSearchResultPage(goToPage));
     // 4) Render NEW pagination results
     (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
+};
+const controlServings = function() {
+    // Update the recipe servings in state
+    _modelJs.updateServings(3);
+    // Update the recipe view
+    (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
 };
 const init = function() {
     // Subscribing to publisher in the view
@@ -2500,6 +2507,7 @@ parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe);
 parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults);
 parcelHelpers.export(exports, "getSearchResultPage", ()=>getSearchResultPage);
+parcelHelpers.export(exports, "updateServings", ()=>updateServings);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _configJs = require("./config.js");
 var _helpersJs = require("./helpers.js");
@@ -2559,6 +2567,12 @@ const getSearchResultPage = function(page = state.search.page) {
     const end = page * state.search.resultsPerPage;
     return state.search.results.slice(start, end);
 };
+const updateServings = function(newServings) {
+    state.recipe.ingredients.forEach((ing)=>{
+        ing.quantity = ing.quantity * newServings / state.recipe.servings;
+    });
+    state.recipe.servings = newServings;
+};
 
 },{"regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config.js":"k5Hzs","./helpers.js":"hGI1E"}],"k5Hzs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2591,7 +2605,7 @@ const getJSON = async function(url) {
             timeout((0, _configJs.TIMEOUT_SECONDS))
         ]);
         const data = await res.json();
-        console.log(res, data);
+        // console.log(res, data);
         if (!res.ok) throw new Error(`${data.message} (${res.status})`);
         return data;
     } catch (err) {

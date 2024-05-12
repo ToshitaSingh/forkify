@@ -14,7 +14,7 @@ export const getJSON = async function (url) {
     const fetchPromise = fetch(url);
     const res = await Promise.race([fetchPromise, timeout(TIMEOUT_SECONDS)]);
     const data = await res.json();
-    console.log(res, data);
+    // console.log(res, data);
 
     if (!res.ok) throw new Error(`${data.message} (${res.status})`);
 
