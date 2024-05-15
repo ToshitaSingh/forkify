@@ -8,6 +8,9 @@ export default class View {
 
     this._data = data;
     const markup = this._generateMarkup();
+
+    // if (!render) return markup;
+
     // Remove markup if any before inserting
     this._clear();
     this._parentElement.insertAdjacentHTML('afterbegin', markup);

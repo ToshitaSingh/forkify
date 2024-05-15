@@ -607,8 +607,9 @@ const controlRecipes = async function() {
         // const { recipe } = model.state; //markup using this now shifted to views
         // 2) Rendering the recipe
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
-        // const recipeView = new recipeView(model.state.recipe);
-        controlServings();
+    // const recipeView = new recipeView(model.state.recipe);
+    // TEST
+    // controlServings();
     } catch (err) {
         (0, _recipeViewJsDefault.default).renderError();
     }
@@ -638,15 +639,16 @@ const controlPagination = function(goToPage) {
     // 4) Render NEW pagination results
     (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
 };
-const controlServings = function() {
+const controlServings = function(newServings) {
     // Update the recipe servings in state
-    _modelJs.updateServings(3);
+    _modelJs.updateServings(newServings);
     // Update the recipe view
     (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
 };
 const init = function() {
     // Subscribing to publisher in the view
     (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
+    (0, _recipeViewJsDefault.default).addHandlerUpdateServings(controlServings);
     (0, _searchViewJsDefault.default).addHandlerSearch(controlSearchResults);
     (0, _paginationViewJsDefault.default).addHandlerClick(controlPagination);
 };
@@ -2535,7 +2537,7 @@ const loadRecipe = async function(id) {
             cookingTime: recipe.cooking_time,
             ingredients: recipe.ingredients
         };
-    // console.log(state.recipe);
+    // console.log(state.recipe.servings);
     } catch (err) {
         // temp error handling
         console.error(`${err} \u{1F4A5}\u{1F4A5}\u{1F4A5}\u{1F4A5}`);
@@ -2636,8 +2638,20 @@ class RecipeView extends (0, _viewJsDefault.default) {
     // window.addEventListener('hashchange', controlRecipes);
     // window.addEventListener('load', controlRecipes);
     }
+    addHandlerUpdateServings(handler) {
+        this._parentElement.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--update-servings");
+            if (!btn) return;
+            console.log(btn);
+            const { updateTo } = btn.dataset;
+            // console.log(typeof +btn.dataset.updateTo);
+            // console.log(updateTo);
+            if (+updateTo > 0) handler(+updateTo);
+        });
+    }
     _generateMarkup() {
         console.log(this._data);
+        console.log(this._data.servings);
         return `
     <figure class="recipe__fig">
           <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
@@ -2662,12 +2676,12 @@ class RecipeView extends (0, _viewJsDefault.default) {
             <span class="recipe__info-text">servings</span>
 
             <div class="recipe__info-buttons">
-              <button class="btn--tiny btn--increase-servings">
+              <button class="btn--tiny btn--update-servings" data-update-to="${this._data.servings - 1}">
                 <svg>
                   <use href="${0, _iconsSvgDefault.default}#icon-minus-circle"></use>
                 </svg>
               </button>
-              <button class="btn--tiny btn--increase-servings">
+              <button class="btn--tiny btn--update-servings" data-update-to="${this._data.servings + 1}">
                 <svg>
                   <use href="${0, _iconsSvgDefault.default}#icon-plus-circle"></use>
                 </svg>
@@ -3032,6 +3046,7 @@ class View {
         if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
         this._data = data;
         const markup = this._generateMarkup();
+        // if (!render) return markup;
         // Remove markup if any before inserting
         this._clear();
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
