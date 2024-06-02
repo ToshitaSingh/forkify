@@ -673,7 +673,13 @@ const controlBookmarks = function() {
 };
 const controlAddRecipes = function(newRecipe) {
     console.log(newRecipe);
-// Upload the new recipe data
+    try {
+        // Upload the new recipe data
+        _modelJs.uploadRecipe(newRecipe);
+    } catch (err) {
+        console.error("\uD83D\uDCA5", err);
+        (0, _addRecipeViewJsDefault.default).renderError(err.message);
+    }
 };
 const init = function() {
     (0, _bookmarksViewJsDefault.default).addHandlerRender(controlBookmarks);
@@ -2545,6 +2551,7 @@ parcelHelpers.export(exports, "getSearchResultPage", ()=>getSearchResultPage);
 parcelHelpers.export(exports, "updateServings", ()=>updateServings);
 parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
 parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
+parcelHelpers.export(exports, "uploadRecipe", ()=>uploadRecipe);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _configJs = require("./config.js");
 var _helpersJs = require("./helpers.js");
@@ -2641,7 +2648,21 @@ init();
 // console.log(state.bookmarks);
 const clearBookmarks = function() {
     localStorage.clear("bookmarks");
-}; // clearBookmarks();
+};
+const uploadRecipe = async function(newRecipe) {
+    // console.log(Object.entries(newRecipe));
+    const ingredients = Object.entries(newRecipe).filter((entry)=>entry[0].startsWith("ingredient") && entry[1] !== "").map((ing)=>{
+        const ingArr = ing[1].replaceAll(" ", "").split(",");
+        if (ingArr.length !== 3) throw new Error("Wrong ingredient format! Please use the correct format :)");
+        const [quantity, unit, description] = ingArr;
+        return {
+            quantity: quantity ? +quantity : null,
+            unit,
+            description
+        };
+    });
+    console.log(ingredients);
+};
 
 },{"regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config.js":"k5Hzs","./helpers.js":"hGI1E"}],"k5Hzs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
