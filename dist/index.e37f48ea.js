@@ -671,6 +671,10 @@ const controlAddBookmark = function() {
 const controlBookmarks = function() {
     (0, _bookmarksViewJsDefault.default).render(_modelJs.state.bookmarks);
 };
+const controlAddRecipes = function(newRecipe) {
+    console.log(newRecipe);
+// Upload the new recipe data
+};
 const init = function() {
     (0, _bookmarksViewJsDefault.default).addHandlerRender(controlBookmarks);
     // Subscribing to publisher in the view
@@ -679,6 +683,7 @@ const init = function() {
     (0, _recipeViewJsDefault.default).addHandlerAddBookmark(controlAddBookmark);
     (0, _searchViewJsDefault.default).addHandlerSearch(controlSearchResults);
     (0, _paginationViewJsDefault.default).addHandlerClick(controlPagination);
+    (0, _addRecipeViewJsDefault.default).addHandlerUpload(controlAddRecipes);
 };
 init();
 
@@ -3369,6 +3374,16 @@ class AddRecipeView extends (0, _viewJsDefault.default) {
     _addHandlerHideWindow() {
         this._btnClose.addEventListener("click", this.toggleWindow.bind(this));
         this._overlay.addEventListener("click", this.toggleWindow.bind(this));
+    }
+    addHandlerUpload(handler) {
+        this._parentElement.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const dataArr = [
+                ...new FormData(this)
+            ];
+            const data = Object.fromEntries(dataArr);
+            handler(data);
+        });
     }
     _generateMarkup() {}
 }
