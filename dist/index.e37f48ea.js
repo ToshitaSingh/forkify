@@ -2672,6 +2672,8 @@ const uploadRecipe = async function(newRecipe) {
             ingredients
         };
         console.log(recipe);
+        const data = await (0, _helpersJs.sendJSON)(`${(0, _configJs.API_URL)}?key=${(0, _configJs.KEY)}`, recipe);
+        console.log(data);
     } catch (err) {
         throw err;
     }
@@ -2683,14 +2685,17 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "API_URL", ()=>API_URL);
 parcelHelpers.export(exports, "TIMEOUT_SECONDS", ()=>TIMEOUT_SECONDS);
 parcelHelpers.export(exports, "RESULTS_PER_PAGE", ()=>RESULTS_PER_PAGE);
+parcelHelpers.export(exports, "KEY", ()=>KEY);
 const API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes/";
 const TIMEOUT_SECONDS = 10;
 const RESULTS_PER_PAGE = 10;
+const KEY = `2f0e3ace-b525-4b5d-ba92-84a48cadaa4d`;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON);
+parcelHelpers.export(exports, "sendJSON", ()=>sendJSON);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _configJs = require("./config.js");
 const timeout = function(s) {
@@ -2703,6 +2708,27 @@ const timeout = function(s) {
 const getJSON = async function(url) {
     try {
         const fetchPromise = fetch(url);
+        const res = await Promise.race([
+            fetchPromise,
+            timeout((0, _configJs.TIMEOUT_SECONDS))
+        ]);
+        const data = await res.json();
+        // console.log(res, data);
+        if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+        return data;
+    } catch (err) {
+        throw err;
+    }
+};
+const sendJSON = async function(url, uploadData) {
+    try {
+        const fetchPromise = fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(uploadData)
+        });
         const res = await Promise.race([
             fetchPromise,
             timeout((0, _configJs.TIMEOUT_SECONDS))
